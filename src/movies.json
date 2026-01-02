@@ -1,0 +1,22 @@
+[
+  {
+    "title": "3 idiots",
+    "genre": "comedy",
+    "rating": 10.0
+  },
+  {
+    "title": "zootopia 2",
+    "genre": "comedy",
+    "rating": 10.0
+  },
+  {
+    "title": "the great flood",
+    "genre": "sci fi",
+    "rating": 10.0
+  },
+  {
+    "title": "pellichoopulu",
+    "genre": "comedy",
+    "rating": 10.0
+  }
+]
