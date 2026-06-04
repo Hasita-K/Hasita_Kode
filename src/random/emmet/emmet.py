@@ -8,10 +8,11 @@ print("RUNNING:", os.path.abspath(__file__))
 # ----------------- Load Images -----------------
 base = os.path.join(os.path.dirname(__file__))
 
-neutral = cv2.imread(os.path.join(base, "emmet_smile.jpg"))   # resting = smile
-smile   = cv2.imread(os.path.join(base, "emmet_smile.jpg"))
-anger   = cv2.imread(os.path.join(base, "emmet_angry.jpg"))
-scare   = cv2.imread(os.path.join(base, "emmet_scare.jpg"))
+neutral   = cv2.imread(os.path.join(base, "emmet_smile.jpg"))
+smile     = cv2.imread(os.path.join(base, "emmet_smile.jpg"))
+anger     = cv2.imread(os.path.join(base, "emmet_angry.jpg"))
+scare     = cv2.imread(os.path.join(base, "emmet_scare.jpg"))
+sad       = cv2.imread(os.path.join(base, "emmet_sad.jpg"))
 
 talking_A = cv2.imread(os.path.join(base, "emmetMouth_A.jpg"))
 talking_E = cv2.imread(os.path.join(base, "emmetMouth_E.jpg"))
@@ -19,7 +20,7 @@ talking_O = cv2.imread(os.path.join(base, "emmetMouth_O.jpg"))
 
 talking_frames = [talking_A, talking_E, talking_O]
 
-if any(img is None for img in [neutral, smile, anger, scare, *talking_frames]):
+if any(img is None for img in [neutral, smile, anger, scare, sad, *talking_frames]):
     print("Error: One or more images not found. Check filenames.")
     exit()
 
@@ -59,7 +60,6 @@ while True:
         for face_landmarks in result.multi_face_landmarks:
             lm = face_landmarks.landmark
 
-            # ---- Mouth landmarks ----
             upper_lip    = lm[13]
             lower_lip    = lm[14]
             left_corner  = lm[61]
@@ -79,8 +79,10 @@ while True:
             elif corner_slope > 0.003:
                 if mouth_open < 0.018:
                     mouth_state = "angry"
+                elif mouth_open < 0.03:
+                    mouth_state = "sad"
                 else:
-                    mouth_state = "scare"   # frown → scare (emmet_scare)
+                    mouth_state = "scare"
 
             else:
                 mouth_state = "neutral"
@@ -98,16 +100,16 @@ while True:
     elif mouth_state == "angry":
         current_img = anger.copy()
 
+    elif mouth_state == "sad":
+        current_img = sad.copy()
+
     elif mouth_state == "scare":
         current_img = scare.copy()
 
-    else:                          # neutral → resting smile
+    else:
         current_img = neutral.copy()
 
     # ----------------- Display -----------------
-    cv2.putText(frame, f"Mouth: {mouth_state}", (30, 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
     cv2.imshow("Webcam", frame)
     cv2.imshow("Avatar", current_img)
 
