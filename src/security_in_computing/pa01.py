@@ -22,23 +22,26 @@ import sys
 
 
 def main():
-    # ---- 1. Validate / collect command line arguments ----
+    #check for valid number of command line args
     if len(sys.argv) != 3:
         print(f"Usage: {sys.argv[0]} inputFilename checksumSize", file=sys.stderr)
         sys.exit(1)
 
+    #get the file name
     filename = sys.argv[1]
 
+    #convert the checksum size to an integer
     try:
         checkSumSize = int(sys.argv[2])
     except ValueError:
         checkSumSize = -1
 
+    #validate the checksum size
     if checkSumSize not in (8, 16, 32):
         print("Valid checksum sizes are 8, 16, or 32", file=sys.stderr)
         sys.exit(1)
 
-    # ---- 2. Open and read the input file (binary, to preserve every byte) ----
+    #I'm oppening the file and reading everything
     try:
         with open(filename, "rb") as f:
             data = f.read()
@@ -46,19 +49,21 @@ def main():
         print(f"Error: could not open file {filename}", file=sys.stderr)
         sys.exit(1)
 
-    characterCnt = len(data)  # original file length, includes the terminating LF (0x0A)
+    #store the original length
+    characterCnt = len(data)  # this includes the terminating 0x0A btw
 
-    # ---- 3. Pad the data with 'X' characters so its length is an exact   ----
-    # ---- multiple of the checksum word size (1, 2, or 4 bytes).          ----
-    # ---- This padded buffer is what gets echoed AND checksummed.        ----
+    #get teh word size
     wordSizeBytes = checkSumSize // 8
+
+    #find how many X characters are needed to pad
     remainder = characterCnt % wordSizeBytes
     padAmount = (wordSizeBytes - remainder) if remainder != 0 else 0
+
+    #create the padded data
     padded = data + (b"X" * padAmount)
     paddedLen = len(padded)
 
-    # ---- 4. Echo the padded text to the screen, 80 characters per row ----
-    # (a blank line goes before and after the echoed block, per the expected output format)
+    # print all the padded text
     stdout_buf = sys.stdout.buffer
     stdout_buf.write(b"\n")
     pos = 0
@@ -66,22 +71,28 @@ def main():
         rowLen = min(80, paddedLen - pos)
         stdout_buf.write(padded[pos:pos + rowLen])
         pos += rowLen
+
+        #here i'm just printing a new line if there's more text 
         if pos < paddedLen:
             stdout_buf.write(b"\n")
     stdout_buf.write(b"\n")
     stdout_buf.flush()
 
-    # ---- 5. Calculate the checksum: sum of checkSumSize-bit words, ----
-    # ---- accumulated with no overflow beyond checkSumSize bits.    ----
+    #initialized the checksum 
     checksumAccum = 0
+
+    #looped through the padded data 
     for i in range(0, paddedLen, wordSizeBytes):
         word = int.from_bytes(padded[i:i + wordSizeBytes], byteorder="big")
         checksumAccum += word
 
+    #creating mask for the correct checksum size
     checksumMask = (1 << checkSumSize) - 1
+
+    #here I keep only the lower bit of the checksum
     checksum = checksumAccum & checksumMask
 
-    # ---- 6. Print the checksum line (chars count reflects the padded length) ----
+    #printing the final checksum 
     print("%2d bit checksum is %8x for all %4d chars" %
           (checkSumSize, checksum, paddedLen))
 
