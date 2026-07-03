@@ -12,7 +12,7 @@
                  and checksumSize is either 8, 16, or 32
         Note:
                 All input files are simple 8 bit ASCII input
-        Class:  CIS3360 - Security in Computing
+        Class:  CIS3360 - Security in Computing - Spring 2026
    Instructor:  McAlpin
     Due Date:   per assignment
 =============================================================================
@@ -22,7 +22,7 @@ import sys
 
 
 def main():
-    #check for valid number of command line args
+    #checking for valid number of command line args
     if len(sys.argv) != 3:
         print(f"Usage: {sys.argv[0]} inputFilename checksumSize", file=sys.stderr)
         sys.exit(1)
@@ -49,31 +49,33 @@ def main():
         print(f"Error: could not open file {filename}", file=sys.stderr)
         sys.exit(1)
 
-    #store the original length
-    characterCnt = len(data)  # this includes the terminating 0x0A btw
+    # store original file length
+    originalCharCnt = len(data)
 
-    #get teh word size
+    # get word size in bytes
     wordSizeBytes = checkSumSize // 8
 
-    #find how many X characters are needed to pad
-    remainder = characterCnt % wordSizeBytes
+    # here I find how many X characters are needed to pad
+    remainder = originalCharCnt % wordSizeBytes
     padAmount = (wordSizeBytes - remainder) if remainder != 0 else 0
 
-    #create the padded data
+    #create padded data
     padded = data + (b"X" * padAmount)
-    paddedLen = len(padded)
+
+    # then store total character count after padding
+    characterCnt = len(padded)
 
     # print all the padded text
     stdout_buf = sys.stdout.buffer
     stdout_buf.write(b"\n")
     pos = 0
-    while pos < paddedLen:
-        rowLen = min(80, paddedLen - pos)
+    while pos < characterCnt:
+        rowLen = min(80, characterCnt - pos)
         stdout_buf.write(padded[pos:pos + rowLen])
         pos += rowLen
 
-        #here i'm just printing a new line if there's more text 
-        if pos < paddedLen:
+        # print newline if there is more text left
+        if pos < characterCnt:
             stdout_buf.write(b"\n")
     stdout_buf.write(b"\n")
     stdout_buf.flush()
@@ -82,7 +84,7 @@ def main():
     checksumAccum = 0
 
     #looped through the padded data 
-    for i in range(0, paddedLen, wordSizeBytes):
+    for i in range(0, characterCnt, wordSizeBytes):
         word = int.from_bytes(padded[i:i + wordSizeBytes], byteorder="big")
         checksumAccum += word
 
@@ -94,7 +96,7 @@ def main():
 
     #printing the final checksum 
     print("%2d bit checksum is %8x for all %4d chars" %
-          (checkSumSize, checksum, paddedLen))
+          (checkSumSize, checksum, characterCnt))
 
 
 if __name__ == "__main__":
