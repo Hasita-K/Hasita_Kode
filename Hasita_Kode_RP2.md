@@ -1,4 +1,4 @@
-# Securing Record Communication: A Case Study of the TSEC/KW-26
+# The TSEC/KW-26: History and Development
 
 Hasita Kode
 Summer 2026 
