@@ -146,5 +146,5 @@ in favor of the KG-84 closed out one of the longest serving cryptographic system
 its engineers documented along the way remain directly relevant to COMSEC programs today. The KG-84 offered a more compact solid-state design, improved reliability, and modernized key management capabilities, making it a suitable successor to the aging KW-26.
 
 ## References
-[1]M. Klein, Securing Record Communications :. 2003.
+[1]M. Klein, Securing Record Communications: The TSEC/KW-26. 2003.
 
