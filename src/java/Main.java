@@ -1,6 +1,6 @@
-package java;
+
 /* COP 3503C Assignment 6
-This program is written by: Your Full Name */
+This program is written by: Hasita Kode */
 import java.util.*;
 
 public class Main {
